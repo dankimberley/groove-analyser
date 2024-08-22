@@ -26,16 +26,8 @@ def audio_to_millisecond_amplitude(audio_path):
     
     return amplitudes
 
+# extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the +/- 10 milliseconds
 def find_peaks(data):
-    """
-    Find values that are greater than the 10 values that surround them.
-
-    Parameters:
-    data (list of [key, value]): List of [key, value] pairs.
-
-    Returns:
-    list of [key, value]: List of [key, value] pairs that are peaks.
-    """
     peaks = []
     n = len(data)
     
