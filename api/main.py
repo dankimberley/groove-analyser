@@ -21,10 +21,36 @@ def audio_to_millisecond_amplitude(audio_path):
         end = start + samples_per_ms
         amplitude = np.abs(y[start:end]).mean()
         if (amplitude > 0):
-            amplitudes.append([ms, amplitude_to_db(amplitude)])
+            amplitudes.append({"time": ms, "amplitude": amplitude_to_db(amplitude)})
 
     
     return amplitudes
 
+def find_peaks(data):
+    """
+    Find values that are greater than the 10 values that surround them.
 
-print(audio_to_millisecond_amplitude(AUDIO_PATH))
+    Parameters:
+    data (list of [key, value]): List of [key, value] pairs.
+
+    Returns:
+    list of [key, value]: List of [key, value] pairs that are peaks.
+    """
+    peaks = []
+    n = len(data)
+    
+    for i in range(n):
+        start = max(0, i - 10)
+        end = min(n, i + 11)
+        
+        value = data[i]['amplitude']
+        
+        surrounding_values = [data[j]['amplitude'] for j in range(start, end) if j != i]
+        
+        if all(value > surrounding_value for surrounding_value in surrounding_values):
+            peaks.append(data[i])
+    
+    return peaks
+
+amplitudes = audio_to_millisecond_amplitude(AUDIO_PATH)
+print(find_peaks(amplitudes))
