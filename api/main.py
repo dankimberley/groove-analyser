@@ -1,7 +1,14 @@
 import librosa
 import numpy as np
+from datetime import datetime
+import json
+import os
+
+import grid
 
 AUDIO_PATH = "api/metronome.mp3"
+os.makedirs('api/outputs', exist_ok=True)
+file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
 
 # convert a given amplitude to decibels
 def amplitude_to_db(amplitude):
@@ -44,5 +51,13 @@ def find_peaks(data):
     
     return peaks
 
-amplitudes = audio_to_millisecond_amplitude(AUDIO_PATH)
-print(find_peaks(amplitudes))
+def write_to_json(data):
+    with open(file_name, "w") as json_file:
+        json.dump(data, json_file, indent=4)
+    print('File has been saved as ' + file_name)
+    
+    
+    
+
+peaks = find_peaks(audio_to_millisecond_amplitude(AUDIO_PATH))
+print(peaks)
