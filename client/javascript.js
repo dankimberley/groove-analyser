@@ -1,5 +1,5 @@
 // Declare the chart dimensions and margins.
-const width = 640;
+const width = 1000;
 const height = 400;
 const marginTop = 20;
 const marginRight = 20;
@@ -36,19 +36,20 @@ svg
 
 const getData = async () => {
   try {
-    const response = await fetch("../api/outputs/20240825_134524.json");
+    const response = await fetch("../api/outputs/20240825_154201.json");
     const data = await response.json();
 
     // Log the data to check its structure
     console.log("Data loaded:", data);
 
-    // Define and log time markers
-    const timeMarkers = [1000, 2300, 4000, 7000, 10000];
-    console.log("Time Markers:", timeMarkers);
+    // // Define and log time markers
+    // const timeMarkers = [1000, 2300, 4000, 7000, 10000];
+    // console.log("Time Markers:", timeMarkers);
 
     // Plot the lines
-    svg.selectAll("line.time-marker")
-      .data(timeMarkers)
+    svg
+      .selectAll("line.time-marker")
+      .data(data.grid)
       .enter()
       .append("line")
       .attr("class", "time-marker")
@@ -57,27 +58,23 @@ const getData = async () => {
       .attr("y1", height - marginBottom) // Bottom of the chart
       .attr("y2", marginTop) // Top of the chart
       .attr("stroke", "gray")
-      .attr("stroke-width", 1)
+      .attr("stroke-width", 0.5)
       .attr("stroke-dasharray", "4,4"); // Optional: makes the line dashed
 
     // Plot the circles
     svg
       .selectAll("circle")
-      .data(data)
+      .data(data.points)
       .enter()
       .append("circle")
       .attr("cx", (d) => x(d.time)) // Use 'time' for the x position
       .attr("cy", (d) => y(d.amplitude)) // Use 'amplitude' for the y position
-      .attr("r", 5) // Radius of the circle
+      .attr("r", 1.5) // Radius of the circle
       .attr("fill", "steelblue"); // Circle color
-
-
-    
 
     // Append the SVG element to the container
     const container = document.getElementById("container");
     container.append(svg.node());
-
   } catch (error) {
     console.error("Error loading data:", error);
   }

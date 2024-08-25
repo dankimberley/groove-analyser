@@ -74,18 +74,13 @@ def write_to_json(data):
         json.dump(data, json_file, indent=4)
     print('File has been saved as ' + file_name)
     
-
-peaks = find_peaks(audio_to_millisecond_amplitude(AUDIO_PATH))
-write_to_json(peaks)
-# print(peaks)
-
-# print('Input times')
+amplitudes = audio_to_millisecond_amplitude(AUDIO_PATH)
+peaks = find_peaks(amplitudes)
 input_times = get_times_from_points(peaks)
-# print(input_times)
-
-# print('Grid times')
 test_grid = grid.generate_grid(100, 16, input_times[0])
-# print(test_grid)
+json_data = {"points": peaks, "grid": test_grid}
+write_to_json(json_data)
+
 
 test = logic.compare_timing(input_times, test_grid)
 print('Comparison returns: ')
