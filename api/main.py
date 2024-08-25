@@ -5,8 +5,10 @@ import json
 import os
 
 import grid
+import logic
 
-AUDIO_PATH = "api/metronome.mp3"
+AUDIO_PATH = "api/snare.mp3"
+AMPLITUDE_THRESHOLD = -25
 os.makedirs('api/outputs', exist_ok=True)
 file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
 
@@ -34,30 +36,59 @@ def audio_to_millisecond_amplitude(audio_path):
     return amplitudes
 
 # extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the +/- 10 milliseconds
-def find_peaks(data):
+def find_peaks(data, window_size=20, min_distance=10):
     peaks = []
     n = len(data)
-    
+    last_peak_index = -min_distance  # Initialize to allow first peak to be detected
+
     for i in range(n):
-        start = max(0, i - 10)
-        end = min(n, i + 11)
-        
+        if i - last_peak_index < min_distance:
+            continue  # Skip if we're too close to the last detected peak
+
+        start = max(0, i - window_size)
+        end = min(n, i + window_size + 1)
         value = data[i]['amplitude']
-        
         surrounding_values = [data[j]['amplitude'] for j in range(start, end) if j != i]
         
-        if all(value > surrounding_value for surrounding_value in surrounding_values):
-            peaks.append(data[i])
-    
+        if all(value >= surrounding_value for surrounding_value in surrounding_values):
+            if value > AMPLITUDE_THRESHOLD:
+                peaks.append(data[i])
+                last_peak_index = i  # Update the last peak index
+
     return peaks
+
+def get_times_from_points(peaks):
+    times = []
+    for point in peaks:
+        times.append(point['time'])
+    return times
+
+def get_amplitudes_from_points(peaks):
+    amplitudes = []
+    for point in peaks:
+        amplitudes.append(point['amplitude'])
+    return amplitudes
 
 def write_to_json(data):
     with open(file_name, "w") as json_file:
         json.dump(data, json_file, indent=4)
     print('File has been saved as ' + file_name)
     
-    
-    
 
 peaks = find_peaks(audio_to_millisecond_amplitude(AUDIO_PATH))
-print(peaks)
+# print(peaks)
+
+# print('Input times')
+input_times = get_times_from_points(peaks)
+# print(input_times)
+
+# print('Grid times')
+test_grid = grid.generate_grid(100, 16, input_times[0])
+# print(test_grid)
+
+test = logic.compare_timing(input_times, test_grid)
+print('Comparison returns: ')
+print(test)
+print('Relative')
+print(logic.convert_abs_to_rel(test, 100))
+print(f'Average timing difference is {logic.get_average(test)}ms')

@@ -5,11 +5,11 @@ def generate_grid(tempo, length, first=0):
     for i in range(length):
         if (i == 0): grid.append(first)
         else:
-            grid.append(round((first + beat * i), 1))
+            grid.append(first + beat * i)
     return grid
 
 def bpm_to_ms(tempo):
     return 60000 / tempo
 
-test1 = generate_grid(138, 8, 100)
-print(test1)
+# test1 = generate_grid(138, 8, 100)
+# print(test1)
