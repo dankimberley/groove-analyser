@@ -76,6 +76,7 @@ def write_to_json(data):
     
 
 peaks = find_peaks(audio_to_millisecond_amplitude(AUDIO_PATH))
+write_to_json(peaks)
 # print(peaks)
 
 # print('Input times')
