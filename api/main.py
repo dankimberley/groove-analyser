@@ -7,7 +7,7 @@ import os
 import grid
 import logic
 
-AUDIO_PATH = "api/snare.mp3"
+AUDIO_PATH = "api/inputs/snare.mp3"
 AMPLITUDE_THRESHOLD = -25
 os.makedirs('api/outputs', exist_ok=True)
 file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')

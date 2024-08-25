@@ -36,7 +36,7 @@ svg
 
 const getData = async () => {
   try {
-    const response = await fetch("../api/outputs/20240825_154201.json");
+    const response = await fetch("../api/outputs/20240825_154808.json");
     const data = await response.json();
 
     // Log the data to check its structure
