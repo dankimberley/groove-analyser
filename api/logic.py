@@ -2,9 +2,12 @@ import grid
 
 # returns the timing differences for an input array and grid array. e.g. compare_timing([102, 399], [100, 400]) returns [2, -1]
 def compare_timing(input, grid):
+    grid_times = []
+    for time in grid:
+        grid_times.append(time['time'])
     difs = []
     for i in range(len(input)):
-        difs.append(input[i] - grid[i])
+        difs.append(input[i] - grid_times[i])
     return difs
 
 def convert_abs_to_rel(difs, tempo):
