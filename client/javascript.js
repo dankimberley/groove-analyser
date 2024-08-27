@@ -15,8 +15,11 @@ const x = d3
 // Declare the y (vertical position) scale.
 const y = d3
   .scaleLinear()
-  .domain([-20, 0]) // Set the y-axis domain from -20 to 0
+  .domain([-15, -5]) // Set the y-axis domain from -20 to 0
   .range([height - marginBottom, marginTop]);
+
+const colourScale = d3.scaleLinear().domain([-15, -5]).range(["blue", "red"])
+const getColour = (value) => colourScale(value)
 
 // Create the SVG container.
 const svg = d3.create("svg").attr("width", width).attr("height", height);
@@ -36,7 +39,7 @@ svg
 
 const getData = async () => {
   try {
-    const response = await fetch("../api/outputs/20240826_145912.json");
+    const response = await fetch("../api/outputs/20240827_173013.json");
     const data = await response.json();
 
     // Log the data to check its structure
@@ -53,12 +56,12 @@ const getData = async () => {
       .enter()
       .append("line")
       .attr("class", "time-marker")
-      .attr("x1", (d) => x(d))
-      .attr("x2", (d) => x(d))
+      .attr("x1", (d) => x(d.time))
+      .attr("x2", (d) => x(d.time))
       .attr("y1", height - marginBottom) // Bottom of the chart
       .attr("y2", marginTop) // Top of the chart
-      .attr("stroke", "gray")
-      .attr("stroke-width", 0.5)
+      .attr("stroke", (d) => d.position === 0 ? "black" : "gray")
+      .attr("stroke-width", (d) => d.position === 0 ? 1 : 0.5)
       .attr("stroke-dasharray", "4,4"); // Optional: makes the line dashed
 
     // Plot the circles
@@ -69,8 +72,8 @@ const getData = async () => {
       .append("circle")
       .attr("cx", (d) => x(d.time)) // Use 'time' for the x position
       .attr("cy", (d) => y(d.amplitude)) // Use 'amplitude' for the y position
-      .attr("r", 1.5) // Radius of the circle
-      .attr("fill", "steelblue"); // Circle color
+      .attr("r", (d) => d.position === 0 ? 3 : 1.5) // Radius of the circle
+      .attr("fill", (d) => getColour(d.amplitude)); // Circle color
 
     // Append the SVG element to the container
     const container = document.getElementById("container");
