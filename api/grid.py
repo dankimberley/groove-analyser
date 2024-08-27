@@ -35,8 +35,8 @@ def get_beats_of_peaks(peaks, grid):
             grid_time = position['time']
             if (abs(peak_time - grid_time) < beat_length):
                 index = grid.index(position)
-                if ((abs(peak_time - grid[index+1]['time']) < beat_length) & ((peak_time - grid[index+1]['time']) < (peak_time - grid_time))):
-                    print('special case')
+                if ((abs(peak_time - grid[index+1]['time']) < beat_length) & ((abs(peak_time - grid[index+1]['time'])) < (peak_time - grid_time))):
+                    print(f'special case: {(peak_time - grid[index+1]["time"])} is less than {(peak_time - grid_time)}')
                     peaks_with_beats.append({'time': peak['time'], 'amplitude': peak['amplitude'], 'bar': grid[index+1]['bar'], 'position': grid[index+1]['position']})
                     break
                 peaks_with_beats.append({'time': peak['time'], 'amplitude': peak['amplitude'], 'bar': position['bar'], 'position': position['position']})

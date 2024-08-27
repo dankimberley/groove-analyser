@@ -83,10 +83,13 @@ print(peaks)
 
 input_times = get_times_from_points(peaks)
 test_grid = grid.generate_grid(100, 16, input_times[0])
-json_data = {"points": peaks, "grid": test_grid}
+
 
 peaks_and_beats = grid.get_beats_of_peaks(peaks, test_grid)
+print('peaks and beats:')
+print(peaks_and_beats)
 
+json_data = {"points": peaks_and_beats, "grid": test_grid}
 write_to_json(json_data)
 
 
