@@ -69,10 +69,6 @@ def get_amplitudes_from_points(peaks):
         amplitudes.append(point['amplitude'])
     return amplitudes
 
-def get_beat_of_peaks(peaks, grid):
-    print(peaks)
-    print(grid)
-    return
     
 def write_to_json(data):
     with open(file_name, "w") as json_file:
@@ -81,13 +77,15 @@ def write_to_json(data):
     
 amplitudes = audio_to_millisecond_amplitude(AUDIO_PATH)
 peaks = find_peaks(amplitudes)
+print('Peaks ')
+print(peaks)
 
 
 input_times = get_times_from_points(peaks)
 test_grid = grid.generate_grid(100, 16, input_times[0])
 json_data = {"points": peaks, "grid": test_grid}
 
-get_beat_of_peaks(peaks, test_grid)
+peaks_and_beats = grid.get_beats_of_peaks(peaks, test_grid)
 
 write_to_json(json_data)
 
