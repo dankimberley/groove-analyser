@@ -7,7 +7,7 @@ import os
 import grid
 import logic
 
-AUDIO_PATH = "api/inputs/snare.mp3"
+AUDIO_PATH = "api/inputs/boots-100bpm.mp3"
 AMPLITUDE_THRESHOLD = -25
 os.makedirs('api/outputs', exist_ok=True)
 file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
@@ -36,7 +36,7 @@ def audio_to_millisecond_amplitude(audio_path):
     return amplitudes
 
 # extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the +/- 10 milliseconds
-def find_peaks(data, window_size=20, min_distance=10):
+def find_peaks(data, window_size=100, min_distance=10):
     peaks = []
     n = len(data)
     last_peak_index = -min_distance  # Initialize to allow first peak to be detected
@@ -82,7 +82,7 @@ print(peaks)
 
 
 input_times = get_times_from_points(peaks)
-test_grid = grid.generate_grid(100, 16, input_times[0])
+test_grid = grid.generate_grid(100, 12, input_times[0])
 
 
 peaks_and_beats = grid.get_beats_of_peaks(peaks, test_grid)

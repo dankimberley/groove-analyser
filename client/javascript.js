@@ -18,8 +18,8 @@ const y = d3
   .domain([-15, -5]) // Set the y-axis domain from -20 to 0
   .range([height - marginBottom, marginTop]);
 
-const colourScale = d3.scaleLinear().domain([-15, -5]).range(["blue", "red"])
-const getColour = (value) => colourScale(value)
+const colourScale = d3.scaleLinear().domain([-15, -5]).range(["blue", "red"]);
+const getColour = (value) => colourScale(value);
 
 // Create the SVG container.
 const svg = d3.create("svg").attr("width", width).attr("height", height);
@@ -37,13 +37,22 @@ svg
   .attr("transform", `translate(${marginLeft},0)`)
   .call(d3.axisLeft(y));
 
+let grid = []
+
+const getTimeDifference = (point, grid) => {
+  let inputOnset = point.time
+  let gridOnset = grid.grid.find(item => item.bar === point.bar && item.position === point.position).time;
+  return inputOnset - gridOnset
+}
+
 const getData = async () => {
   try {
-    const response = await fetch("../api/outputs/20240827_173013.json");
+    const response = await fetch("../api/outputs/20240828_181830.json");
     const data = await response.json();
 
     // Log the data to check its structure
     console.log("Data loaded:", data);
+    grid = data.grid
 
     // // Define and log time markers
     // const timeMarkers = [1000, 2300, 4000, 7000, 10000];
@@ -60,8 +69,8 @@ const getData = async () => {
       .attr("x2", (d) => x(d.time))
       .attr("y1", height - marginBottom) // Bottom of the chart
       .attr("y2", marginTop) // Top of the chart
-      .attr("stroke", (d) => d.position === 0 ? "black" : "gray")
-      .attr("stroke-width", (d) => d.position === 0 ? 1 : 0.5)
+      .attr("stroke", (d) => (d.position === 0 ? "black" : "gray"))
+      .attr("stroke-width", (d) => (d.position === 0 ? 1 : 0.5))
       .attr("stroke-dasharray", "4,4"); // Optional: makes the line dashed
 
     // Plot the circles
@@ -72,8 +81,33 @@ const getData = async () => {
       .append("circle")
       .attr("cx", (d) => x(d.time)) // Use 'time' for the x position
       .attr("cy", (d) => y(d.amplitude)) // Use 'amplitude' for the y position
-      .attr("r", (d) => d.position === 0 ? 3 : 1.5) // Radius of the circle
-      .attr("fill", (d) => getColour(d.amplitude)); // Circle color
+      .attr("r", (d) => (d.position === 0 ? 3 : 1.5)) // Radius of the circle
+      .attr("fill", (d) => getColour(d.amplitude))
+      .on("mouseover", function (event, d) {
+        // Enlarge the circle on hover
+        d3.select(this).transition().duration(150).attr("r", 4);
+
+        // Append a text element near the circle
+        svg
+          .append("text")
+          .attr("id", "hover-text")
+          .attr("x", x(d.time) + 10) // Adjust the x position of the text
+          .attr("y", y(d.amplitude) - 10) // Adjust the y position of the text
+          .attr("text-anchor", "middle")
+          .attr("font-size", "12px")
+          .attr("fill", "black")
+          .text(`Timing: ${getTimeDifference(d, data)}ms`);
+      })
+      .on("mouseout", function (event, d) {
+        // Restore the circle's radius
+        d3.select(this)
+          .transition()
+          .duration(100)
+          .attr("r", (d) => (d.position === 0 ? 3 : 1.5));
+
+        // Remove the hover text
+        svg.select("#hover-text").remove();
+      });
 
     // Append the SVG element to the container
     const container = document.getElementById("container");
