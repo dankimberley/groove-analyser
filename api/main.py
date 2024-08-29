@@ -7,7 +7,7 @@ import os
 import grid
 import logic
 
-AUDIO_PATH = "api/inputs/boots-100bpm.mp3"
+AUDIO_PATH = "api/inputs/120bass.mp3"
 AMPLITUDE_THRESHOLD = -25
 os.makedirs('api/outputs', exist_ok=True)
 file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
@@ -32,11 +32,10 @@ def audio_to_millisecond_amplitude(audio_path):
         if (amplitude > 0):
             amplitudes.append({"time": ms, "amplitude": amplitude_to_db(amplitude)})
 
-    
     return amplitudes
 
-# extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the +/- 10 milliseconds
-def find_peaks(data, window_size=100, min_distance=10):
+# extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the window size milliseconds
+def find_peaks(data, window_size=150, min_distance=10):
     peaks = []
     n = len(data)
     last_peak_index = -min_distance  # Initialize to allow first peak to be detected
@@ -75,6 +74,24 @@ def write_to_json(data):
         json.dump(data, json_file, indent=4)
     print('File has been saved as ' + file_name)
     
+def every_x(data, x):
+    filtered = []
+    total = 0
+    i = 0  # Initialize i to 0 to correctly count elements
+
+    for datum in data:
+        total += datum['amplitude']  # Accumulate the amplitude
+        i += 1  # Increment the counter
+
+        if i == x:  # If we've accumulated x elements
+            average_amplitude = total / x  # Calculate the average
+            filtered.append({'time': datum['time'], 'amplitude': average_amplitude})
+            total = 0  # Reset the total for the next group
+            i = 0  # Reset the counter for the next group
+
+    return filtered
+            
+    
 amplitudes = audio_to_millisecond_amplitude(AUDIO_PATH)
 peaks = find_peaks(amplitudes)
 print('Peaks ')
@@ -82,14 +99,14 @@ print(peaks)
 
 
 input_times = get_times_from_points(peaks)
-test_grid = grid.generate_grid(100, 12, input_times[0])
+test_grid = grid.generate_grid(120, 20, input_times[0])
 
 
 peaks_and_beats = grid.get_beats_of_peaks(peaks, test_grid)
 print('peaks and beats:')
 print(peaks_and_beats)
 
-json_data = {"points": peaks_and_beats, "grid": test_grid}
+json_data = {"points": peaks_and_beats, "grid": test_grid, 'amplitudes': every_x(amplitudes, 5)}
 write_to_json(json_data)
 
 

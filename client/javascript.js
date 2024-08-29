@@ -15,7 +15,7 @@ const x = d3
 // Declare the y (vertical position) scale.
 const y = d3
   .scaleLinear()
-  .domain([-15, -5]) // Set the y-axis domain from -20 to 0
+  .domain([-75, -5]) // Set the y-axis domain from -20 to 0
   .range([height - marginBottom, marginTop]);
 
 const colourScale = d3.scaleLinear().domain([-15, -5]).range(["blue", "red"]);
@@ -47,7 +47,7 @@ const getTimeDifference = (point, grid) => {
 
 const getData = async () => {
   try {
-    const response = await fetch("../api/outputs/20240828_181830.json");
+    const response = await fetch("../api/outputs/20240829_172434.json");
     const data = await response.json();
 
     // Log the data to check its structure
@@ -72,6 +72,18 @@ const getData = async () => {
       .attr("stroke", (d) => (d.position === 0 ? "black" : "gray"))
       .attr("stroke-width", (d) => (d.position === 0 ? 1 : 0.5))
       .attr("stroke-dasharray", "4,4"); // Optional: makes the line dashed
+
+    // waveform
+    svg.append("path")
+      .datum(data.amplitudes)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 0.4)
+      .attr("d", d3.line()
+        .curve(d3.curveCardinal)
+        .x(function(d) { return x(d.time) })
+        .y(function(d) { return y(d.amplitude) })
+        )
 
     // Plot the circles
     svg
