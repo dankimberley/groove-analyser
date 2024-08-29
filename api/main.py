@@ -8,7 +8,8 @@ import grid
 import logic
 
 AUDIO_PATH = "api/inputs/120bass.mp3"
-AMPLITUDE_THRESHOLD = -25
+SECOND_AUTO_PATH = "api/inputs/120drums.mp3"
+AMPLITUDE_THRESHOLD = -40
 os.makedirs('api/outputs', exist_ok=True)
 file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
 
@@ -35,7 +36,7 @@ def audio_to_millisecond_amplitude(audio_path):
     return amplitudes
 
 # extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the window size milliseconds
-def find_peaks(data, window_size=150, min_distance=10):
+def find_peaks(data, window_size=150, min_distance=100):
     peaks = []
     n = len(data)
     last_peak_index = -min_distance  # Initialize to allow first peak to be detected
@@ -106,7 +107,12 @@ peaks_and_beats = grid.get_beats_of_peaks(peaks, test_grid)
 print('peaks and beats:')
 print(peaks_and_beats)
 
-json_data = {"points": peaks_and_beats, "grid": test_grid, 'amplitudes': every_x(amplitudes, 5)}
+drum_amplitudes = audio_to_millisecond_amplitude(SECOND_AUTO_PATH)
+drum_peaks = find_peaks(drum_amplitudes)
+drum_times = get_times_from_points(drum_peaks)
+drum_beats = grid.get_beats_of_peaks(drum_peaks, grid.generate_grid(120, 20, drum_times[0]))
+
+json_data = {"points": peaks_and_beats, "grid": drum_beats, 'amplitudes': every_x(amplitudes, 5)}
 write_to_json(json_data)
 
 
