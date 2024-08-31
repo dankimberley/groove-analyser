@@ -33,7 +33,36 @@ const getData = async () => {
 
 const writeAnalysis = (data) => {
   const text = document.getElementById('text')
-  text.textContent = data.grid[0]['amplitude']
+  const simultaneousTransients = findSimlutaneousTransients(data)
+  const timingDifferences = getTimingDifferences(simultaneousTransients)
+  const averageTimingDifference = timingDifferences.reduce((a, b) => a + b) / timingDifferences.length
+  text.textContent = `${Math.round(averageTimingDifference)}ms average`
 }
+
+const findSimlutaneousTransients = (data) => {
+  const primaryTransients = data.grid.map((point) => point.time)
+  const secondaryTransients = data.points
+  const simultaneous = []
+
+  secondaryTransients.forEach((secondaryTransient) => {
+    primaryTransients.forEach((primaryTransient) => {
+      if (Math.abs(primaryTransient - secondaryTransient.time) < 50) {
+        simultaneous.push({'primary':primaryTransient, 'secondary':secondaryTransient.time})
+      }
+    })
+  })
+  console.log(simultaneous)
+  return simultaneous
+}
+
+const getTimingDifferences = (simultaneousTransients) => {
+  const differences = []
+  simultaneousTransients.forEach((transient) => {
+    differences.push(transient.secondary - transient.primary)
+  })
+  return differences
+}
+
+
 
 getData();

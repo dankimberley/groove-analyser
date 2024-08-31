@@ -19,6 +19,7 @@ const getTimeDifference = (point, grid) => {
 };
 
 const colourScale = d3.scaleLinear().domain([localDomainLower, localDomainUpper]).range(["blue", "red"]);
+console.log(localDomainLower)
 const getColour = (value) => colourScale(value);
 
 const createChart = (domainLower, domainUpper, length) => {
