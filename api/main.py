@@ -111,11 +111,3 @@ drum_beats = grid.get_beats_of_peaks(drum_peaks, grid.generate_grid(120, 20, dru
 json_data = {"points": peaks_and_beats, "grid": drum_beats, 'amplitudes': every_x(amplitudes, 5)}
 write_to_json(json_data)
 
-
-test = logic.compare_timing(input_times, test_grid)
-print('Comparison returns: ')
-print(test)
-print('Relative')
-print(logic.convert_abs_to_rel(test, 100))
-print(f'Average timing difference is {logic.get_average(test)}ms')
-print(test_grid)
