@@ -11,7 +11,8 @@ AUDIO_PATH = "api/inputs/120bass.mp3"
 SECOND_AUTO_PATH = "api/inputs/120drums.mp3"
 AMPLITUDE_THRESHOLD = -40
 os.makedirs('api/outputs', exist_ok=True)
-file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
+# file_name = os.path.join('api/outputs', datetime.now().strftime("%Y%m%d_%H%M%S") + '.json')
+file_name = os.path.join('api/outputs', 'output' + '.json')
 
 # convert a given amplitude to decibels
 def amplitude_to_db(amplitude):
@@ -35,27 +36,22 @@ def audio_to_millisecond_amplitude(audio_path):
 
     return amplitudes
 
-# extract peaks from a set of amplitudes, peak defined as the greatest amplitude out of the window size milliseconds
-def find_peaks(data, window_size=150, min_distance=100):
-    peaks = []
-    n = len(data)
-    last_peak_index = -min_distance  # Initialize to allow first peak to be detected
-
-    for i in range(n):
-        if i - last_peak_index < min_distance:
-            continue  # Skip if we're too close to the last detected peak
-
-        start = max(0, i - window_size)
-        end = min(n, i + window_size + 1)
-        value = data[i]['amplitude']
-        surrounding_values = [data[j]['amplitude'] for j in range(start, end) if j != i]
-        
-        if all(value >= surrounding_value for surrounding_value in surrounding_values):
-            if value > AMPLITUDE_THRESHOLD:
-                peaks.append(data[i])
-                last_peak_index = i  # Update the last peak index
-
-    return peaks
+def detect_transients(data, threshold=-25):
+    transients = []
+    i = 1
+    while i < len(data):
+        current_amplitude = data[i]['amplitude']
+        current_time = data[i]['time']
+        if current_amplitude > threshold:
+            if current_amplitude - data[i-10]['amplitude'] > 5: # check transient is significant
+                if data[i+1]['amplitude'] - current_amplitude < 5: # check transient does not rise significantly more
+                    transients.append({'time': current_time, 'amplitude': current_amplitude})
+                    i += 250
+                    continue
+                    
+        i += 1
+    
+    return transients
 
 def get_times_from_points(peaks):
     times = []
@@ -94,7 +90,7 @@ def every_x(data, x):
             
     
 amplitudes = audio_to_millisecond_amplitude(AUDIO_PATH)
-peaks = find_peaks(amplitudes)
+peaks = detect_transients(amplitudes)
 print('Peaks ')
 print(peaks)
 
@@ -108,7 +104,7 @@ print('peaks and beats:')
 print(peaks_and_beats)
 
 drum_amplitudes = audio_to_millisecond_amplitude(SECOND_AUTO_PATH)
-drum_peaks = find_peaks(drum_amplitudes)
+drum_peaks = detect_transients(drum_amplitudes)
 drum_times = get_times_from_points(drum_peaks)
 drum_beats = grid.get_beats_of_peaks(drum_peaks, grid.generate_grid(120, 20, drum_times[0]))
 

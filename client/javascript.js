@@ -47,7 +47,7 @@ const getTimeDifference = (point, grid) => {
 
 const getData = async () => {
   try {
-    const response = await fetch("../api/outputs/20240829_174534.json");
+    const response = await fetch("../api/outputs/output.json");
     const data = await response.json();
 
     // Log the data to check its structure
