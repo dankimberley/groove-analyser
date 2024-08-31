@@ -7,12 +7,19 @@ let marginTop;
 let marginBottom;
 let marginRight;
 let marginLeft;
+let localDomainUpper
+let localDomainLower
 
 const getTimeDifference = (point, grid) => {
-    let inputOnset = point.time
-    let gridOnset = grid.grid.find(item => item.bar === point.bar && item.position === point.position).time;
-    return inputOnset - gridOnset
-  }
+  let inputOnset = point.time;
+  let gridOnset = grid.grid.find(
+    (item) => item.bar === point.bar && item.position === point.position
+  ).time;
+  return inputOnset - gridOnset;
+};
+
+const colourScale = d3.scaleLinear().domain([localDomainLower, localDomainUpper]).range(["blue", "red"]);
+const getColour = (value) => colourScale(value);
 
 const createChart = (domainLower, domainUpper, length) => {
   width = 1000;
@@ -21,6 +28,9 @@ const createChart = (domainLower, domainUpper, length) => {
   marginRight = 20;
   marginBottom = 30;
   marginLeft = 40;
+
+  localDomainLower = domainLower
+  localDomainUpper = domainUpper
 
   x = d3
     .scaleLinear()
@@ -93,8 +103,8 @@ export const createPoints = (data) => {
     .append("circle")
     .attr("cx", (d) => x(d.time)) // Use 'time' for the x position
     .attr("cy", (d) => y(d.amplitude)) // Use 'amplitude' for the y position
-    .attr("r", 1) // Radius of the circle
-    .attr("fill", "red")
+    .attr("r", (d) => (d.position === 0 ? 3 : 1.5)) // Radius of the circle
+    .attr("fill", (d) => getColour(d.amplitude))
     .on("mouseover", function (event, d) {
       svg
         .append("text")
@@ -104,7 +114,11 @@ export const createPoints = (data) => {
         .attr("text-anchor", "middle")
         .attr("font-size", "12px")
         .attr("fill", "black")
-        .text(`Time: ${d.time}ms Amplitude: ${d.amplitude} Timing: ${getTimeDifference(d, data)}ms`);
+        .text(
+          `Time: ${d.time}ms Amplitude: ${
+            d.amplitude
+          } Timing: ${getTimeDifference(d, data)}ms`
+        );
     })
     .on("mouseout", function (event, d) {
       // Remove the hover text

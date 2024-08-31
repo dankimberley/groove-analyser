@@ -24,10 +24,16 @@ const getData = async () => {
     createChart(getMinAmplitude(data.points).amplitude, getMaxAmplitude(data.points).amplitude, data.points.pop().time);
     createPoints(data)
     createGrid(data)
+    writeAnalysis(data)
 
   } catch (error) {
     console.log("Error loading data :(", error);
   }
 };
+
+const writeAnalysis = (data) => {
+  const text = document.getElementById('text')
+  text.textContent = data.grid[0]['amplitude']
+}
 
 getData();
